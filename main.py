@@ -1,4 +1,4 @@
-import pygame, tile, snake, apple
+import pygame, tile, snake, apple, score, collisions
 from rainbow import colours
 pygame.init()
 
@@ -15,18 +15,22 @@ pygame.display.set_caption("Snake")
 tiles = pygame.sprite.Group()
 snakeParts = pygame.sprite.Group()
 apples = pygame.sprite.Group()
+scores = pygame.sprite.Group()
 
 ## Create the initial apple
 apples.add(apple.Apple())
 
+## Creates a scoreboard object
+scores.add(score.Score())
+
 ## Create the initial snake
-snakeParts.add(snake.BodyPart(0, 7, 9))
-snakeParts.add(snake.BodyPart(1, 6, 9))
-snakeParts.add(snake.BodyPart(2, 5, 9))
-snakeParts.add(snake.BodyPart(3, 4, 9))
+snakeParts.add(snake.BodyPart(0, 3, 9))
+snakeParts.add(snake.BodyPart(1, 2, 9))
+snakeParts.add(snake.BodyPart(2, 1, 9))
+snakeParts.add(snake.BodyPart(3, 0, 9))
 
 ## Starts the snake moving to the right
-snakeDirection = (0,-1)
+snakeDirection = (1,0)
 snakeLength = 4
 
 ## Create a Group of Tile objects for the background
@@ -39,13 +43,13 @@ while carryOn:
         if event.type == pygame.QUIT:
             carryOn=False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:
+            if event.key == pygame.K_RIGHT and snakeDirection != (-1, 0):
                 snakeDirection = (1, 0)
-            elif event.key == pygame.K_LEFT:
+            elif event.key == pygame.K_LEFT and snakeDirection != (1, 0):
                 snakeDirection = (-1, 0)
-            elif event.key == pygame.K_DOWN:
+            elif event.key == pygame.K_DOWN and snakeDirection != (0, -1):
                 snakeDirection = (0, 1)
-            elif event.key == pygame.K_UP:
+            elif event.key == pygame.K_UP and snakeDirection != (0, 1):
                 snakeDirection = (0, -1)
 
     ## Drawing the background
@@ -55,7 +59,9 @@ while carryOn:
     if snakeParts.sprites()[0].x == apples.sprites()[0].x and snakeParts.sprites()[0].y == apples.sprites()[0].y:
         snakeLength += 1
         snakeParts.add(snake.BodyPart(snakeLength-1, snakeParts.sprites()[-1].x - snakeDirection[0], snakeParts.sprites()[-1].y - snakeDirection[1]))
-        apples.sprites()[0].newApple()
+
+        scores.sprites()[0].addScore() ## Adds one to the score counter
+        apples.sprites()[0].newApple(snakeParts) ## Generates a new random apple
 
     ## Refreshing and updating
     for i in range(len(snakeParts.sprites())-1, 0, -1):
@@ -67,12 +73,18 @@ while carryOn:
     snakeParts.sprites()[0].y += snakeDirection[1]
     snakeParts.sprites()[0].updateRectPos()
 
-    ## Drawing sprites
-    tiles.draw(screen)
-    apples.draw(screen)
-    snakeParts.draw(screen)
+    ## Check if snake has collided with itself or the wall
+    if collisions.bodyCollision(snakeParts) or collisions.wallCollision(snakeParts):
+        carryOn = False
+        print("Crash")
+    else:
+        ## Drawing sprites
+        tiles.draw(screen)
+        apples.draw(screen)
+        snakeParts.draw(screen)
+        scores.draw(screen)
 
-    pygame.display.flip()
-    clock.tick(5)
+        pygame.display.flip()
+        clock.tick(7)
 
 pygame.quit()
