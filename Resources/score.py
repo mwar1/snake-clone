@@ -1,6 +1,6 @@
 import pygame, random
 pygame.init()
-from rainbow import colours
+from .rainbow import colours
 
 font = pygame.font.Font("Fonts/numberFont.ttf", 22)
 

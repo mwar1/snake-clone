@@ -1,6 +1,12 @@
-import pygame, tile, snake, apple, score, collisions
-from rainbow import colours
+import pygame
 pygame.init()
+
+from Resources.rainbow import colours
+from Resources.tile import Tile
+from Resources.snake import BodyPart
+from Resources.apple import Apple
+from Resources.score import Score
+from Resources.collisions import bodyCollision, wallCollision
 
 SCREENWIDTH = 950
 SCREENHEIGHT = 950
@@ -18,16 +24,16 @@ apples = pygame.sprite.Group()
 scores = pygame.sprite.Group()
 
 ## Create the initial apple
-apples.add(apple.Apple())
+apples.add(Apple())
 
 ## Creates a scoreboard object
-scores.add(score.Score())
+scores.add(Score())
 
 ## Create the initial snake
-snakeParts.add(snake.BodyPart(0, 3, 9))
-snakeParts.add(snake.BodyPart(1, 2, 9))
-snakeParts.add(snake.BodyPart(2, 1, 9))
-snakeParts.add(snake.BodyPart(3, 0, 9))
+snakeParts.add(BodyPart(0, 3, 9))
+snakeParts.add(BodyPart(1, 2, 9))
+snakeParts.add(BodyPart(2, 1, 9))
+snakeParts.add(BodyPart(3, 0, 9))
 
 ## Starts the snake moving to the right
 snakeDirection = (1,0)
@@ -36,7 +42,7 @@ snakeLength = 4
 ## Create a Group of Tile objects for the background
 for i in range(19):
     for j in range(19):
-        tiles.add(tile.Tile((i*19)+j))
+        tiles.add(Tile((i*19)+j))
 
 while carryOn:
     for event in pygame.event.get():
@@ -58,7 +64,7 @@ while carryOn:
     ## Check if snake has eaten the apple
     if snakeParts.sprites()[0].x == apples.sprites()[0].x and snakeParts.sprites()[0].y == apples.sprites()[0].y:
         snakeLength += 1
-        snakeParts.add(snake.BodyPart(snakeLength-1, snakeParts.sprites()[-1].x - snakeDirection[0], snakeParts.sprites()[-1].y - snakeDirection[1]))
+        snakeParts.add(BodyPart(snakeLength-1, snakeParts.sprites()[-1].x - snakeDirection[0], snakeParts.sprites()[-1].y - snakeDirection[1]))
 
         scores.sprites()[0].addScore() ## Adds one to the score counter
         apples.sprites()[0].newApple(snakeParts) ## Generates a new random apple
@@ -74,7 +80,7 @@ while carryOn:
     snakeParts.sprites()[0].updateRectPos()
 
     ## Check if snake has collided with itself or the wall
-    if collisions.bodyCollision(snakeParts) or collisions.wallCollision(snakeParts):
+    if bodyCollision(snakeParts) or wallCollision(snakeParts):
         carryOn = False
         print("Crash")
     else:

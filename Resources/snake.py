@@ -1,5 +1,5 @@
 import pygame
-from rainbow import colours
+from .rainbow import colours
 
 class BodyPart(pygame.sprite.Sprite):
     def __init__(self, index, x, y, head=False):

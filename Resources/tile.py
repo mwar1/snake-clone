@@ -1,5 +1,5 @@
 import pygame, random
-from rainbow import colours
+from .rainbow import colours
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, index):
