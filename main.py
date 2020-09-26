@@ -3,13 +3,6 @@ pygame.init()
 
 from Resources import rainbow, tile, snake, apple, score, collisions
 
-#from Resources.rainbow import colours
-#from Resources.tile import Tile
-#from Resources.snake import BodyPart
-#from Resources.apple import Apple
-#from Resources.score import Score
-#from Resources.collisions import bodyCollision, wallCollision
-
 SCREENWIDTH = 950
 SCREENHEIGHT = 950
 size = (SCREENWIDTH, SCREENHEIGHT)
@@ -20,36 +13,25 @@ carryOn = True
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Snake")
 
-tiles = pygame.sprite.Group()
-snakeParts = pygame.sprite.Group()
-apples = pygame.sprite.Group()
-scores = pygame.sprite.Group()
-
-## Create the initial apple
-apples.add(apple.Apple())
-
-## Creates a scoreboard object
-scores.add(score.Score())
-
-## Create the initial snake
-snakeParts.add(snake.BodyPart(0, 3, 9))
-snakeParts.add(snake.BodyPart(1, 2, 9))
-snakeParts.add(snake.BodyPart(2, 1, 9))
-snakeParts.add(snake.BodyPart(3, 0, 9))
-
-## Starts the snake moving to the right
-snakeDirection = (1,0)
-snakeLength = 4
-dead = False
-
 deathFont = pygame.font.Font("Fonts/numberFont.ttf", 65)
 font = font = pygame.font.Font("Fonts/numberFont.ttf", 45)
 deathText = deathFont.render("You died!", False, rainbow.colours["BLACK"])
 playAgainText = font.render("Press Enter to play again", False, rainbow.colours["BLACK"])
 
-def resetGame():
+def generateGlobals():
     dead = False
 
+    tiles = pygame.sprite.Group()
+    snakeParts = pygame.sprite.Group()
+    apples = pygame.sprite.Group()
+    scores = pygame.sprite.Group()
+
+    ## Create a Group of Tile objects for the background
+    for i in range(19):
+        for j in range(19):
+            tiles.add(tile.Tile((i*19)+j))
+
+    ## Generates the inital snake
     snakeParts.empty()
     snakeParts.add(snake.BodyPart(0, 3, 9))
     snakeParts.add(snake.BodyPart(1, 2, 9))
@@ -57,20 +39,19 @@ def resetGame():
     snakeParts.add(snake.BodyPart(3, 0, 9))
 
     snakeLength = 4
-    snakeDirection = (1,0)
+    snakeDirection = (1,0) ## Starts the snake moving to the right
 
+    ## Generates the inital apple
     apples.empty()
     apples.add(apple.Apple())
 
+    ## Creates the scoreboard
     scores.empty()
     scores.add(score.Score())
 
-    return dead, snakeParts, snakeLength, snakeDirection, apples, scores
+    return dead, snakeParts, snakeLength, snakeDirection, apples, scores, tiles
 
-## Create a Group of Tile objects for the background
-for i in range(19):
-    for j in range(19):
-        tiles.add(tile.Tile((i*19)+j))
+dead, snakeParts, snakeLength, snakeDirection, apples, scores, tiles = generateGlobals()
 
 while carryOn:
     for event in pygame.event.get():
@@ -86,7 +67,7 @@ while carryOn:
             elif event.key == pygame.K_UP and snakeDirection != (0, 1):
                 snakeDirection = (0, -1)
             elif event.key == pygame.K_RETURN and dead:
-                dead, snakeParts, snakeLength, snakeDirection, apples, scores = resetGame()
+                dead, snakeParts, snakeLength, snakeDirection, apples, scores, tiles = generateGlobals()
 
     ## Check if snake has eaten the apple
     if snakeParts.sprites()[0].x == apples.sprites()[0].x and snakeParts.sprites()[0].y == apples.sprites()[0].y:
