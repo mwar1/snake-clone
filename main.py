@@ -1,7 +1,7 @@
 import pygame
 pygame.init()
 
-from Resources import rainbow, tile, snake, apple, score, collisions
+from Resources import rainbow, snake, apple, score, collisions
 
 SCREENWIDTH = 950
 SCREENHEIGHT = 950
@@ -21,15 +21,11 @@ playAgainText = font.render("Press Enter to play again", False, rainbow.colours[
 def generateGlobals():
     dead = False
 
-    tiles = pygame.sprite.Group()
     snakeParts = pygame.sprite.Group()
     apples = pygame.sprite.Group()
     scores = pygame.sprite.Group()
 
     ## Create a Group of Tile objects for the background
-    for i in range(19):
-        for j in range(19):
-            tiles.add(tile.Tile((i*19)+j))
 
     ## Generates the inital snake
     snakeParts.empty()
@@ -49,9 +45,9 @@ def generateGlobals():
     scores.empty()
     scores.add(score.Score())
 
-    return dead, snakeParts, snakeLength, snakeDirection, apples, scores, tiles
+    return dead, snakeParts, snakeLength, snakeDirection, apples, scores
 
-dead, snakeParts, snakeLength, snakeDirection, apples, scores, tiles = generateGlobals()
+dead, snakeParts, snakeLength, snakeDirection, apples, scores = generateGlobals()
 
 while carryOn:
     for event in pygame.event.get():
@@ -67,7 +63,7 @@ while carryOn:
             elif event.key == pygame.K_UP and snakeDirection != (0, 1):
                 snakeDirection = (0, -1)
             elif event.key == pygame.K_RETURN and dead:
-                dead, snakeParts, snakeLength, snakeDirection, apples, scores, tiles = generateGlobals()
+                dead, snakeParts, snakeLength, snakeDirection, apples, scores = generateGlobals()
 
     ## Check if snake has eaten the apple
     if snakeParts.sprites()[0].x == apples.sprites()[0].x and snakeParts.sprites()[0].y == apples.sprites()[0].y:
@@ -80,6 +76,11 @@ while carryOn:
     ## Check if snake has collided with itself or the wall
     if collisions.bodyCollision(snakeParts) or collisions.wallCollision(snakeParts):
         dead = True
+
+    ## Drawing the background
+    for i in range(19):
+        for j in range(19):
+            pygame.draw.rect(screen, rainbow.colours["LIME"] if ((i*19)+j) % 2 == 0 else rainbow.colours["GREEN"], (i*50, j*50, 50, 50))
 
     if dead:
         screen.blit(deathText, (475 - (deathFont.size("You died!")[0]/2), 350))
@@ -96,7 +97,6 @@ while carryOn:
         snakeParts.sprites()[0].updateRectPos()
 
         ## Drawing sprites
-        tiles.draw(screen)
         apples.draw(screen)
         snakeParts.draw(screen)
         scores.draw(screen)
